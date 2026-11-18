@@ -1,0 +1,59 @@
+nav form {
+  display: flex;
+  position: relative;
+  flex: 1;
+  padding: 8px;
+  border: 1px solid transparent;
+  border-radius: 16px;
+  background:
+    linear-gradient(to top, var(--bg), var(--bg-light)) padding-box,
+    linear-gradient(to top, var(--border-muted), var(--border)) border-box;
+}
+
+nav form input {
+  flex: 1;
+  height: 32px;
+  padding-left: 8px;
+  border-radius: 12px;
+  border-color: transparent;
+  background: var(--bg);
+  color: var(--text-muted);
+}
+
+nav form input:focus {
+  outline: none;
+}
+
+nav form ul {
+  position: absolute;
+  top: 115%;
+  left: 50%;
+  width: 100%;
+  margin: 0;
+  padding: 4px 0;
+  transform: translateX(-50%);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--bg);
+  box-shadow: 0 4px 8px var(--border);
+  color: var(--text-muted);
+  list-style: none;
+}
+
+nav form li {
+  display: flex;
+  align-items: center;
+  padding: 4px 8px;
+  gap: 8px;
+  cursor: pointer;
+}
+
+nav form li:hover {
+  background: var(--bg-light);
+  color: var(--text);
+}
+
+nav form img {
+  height: 48px;
+  border-radius: 4px;
+}

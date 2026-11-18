@@ -1,0 +1,89 @@
+nav {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin: 16px;
+  padding: 16px;
+  gap: 64px;
+  border: 2px solid transparent;
+  border-radius: 16px;
+  background:
+    linear-gradient(to top, var(--bg), var(--bg-light)) padding-box,
+    linear-gradient(to top, var(--border-muted), var(--border)) border-box;
+}
+
+nav div {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 8px;
+}
+
+nav section {
+  position: relative;
+}
+
+nav menu {
+  position: absolute;
+  top: 100%;
+  right: 0;
+  margin: 8px;
+  padding: 8px;
+  border: 1px solid transparent;
+  border-radius: 16px;
+  background:
+    linear-gradient(to top, var(--bg), var(--bg-light)) padding-box,
+    linear-gradient(to top, var(--border-muted), var(--border)) border-box;
+  list-style: none;
+}
+
+nav li {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  margin-left: 4px;
+  gap: 4px;
+}
+
+nav select {
+  height: 32px;
+  border-radius: 12px;
+  border-color: transparent;
+  background-color: var(--bg);
+  color: var(--text-muted);
+}
+
+nav img {
+  object-fit: contain;
+}
+
+nav header button {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 16px;
+  border-color: transparent;
+  background-color: transparent;
+  cursor: pointer;
+}
+
+nav div button {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  border-color: transparent;
+  background-color: transparent;
+  color: var(--text-muted);
+  font-weight: normal;
+  font-size: 16px;
+  cursor: pointer;
+}
+
+nav div button:hover {
+  color: var(--text);
+  font-weight: bold;
+}
+
+nav div button:hover img {
+  filter: drop-shadow(0 0 2px var(--text));
+}
