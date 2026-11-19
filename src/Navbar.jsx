@@ -89,6 +89,11 @@ export default function Navbar() {
 
       {/* MENU */}
       <div>
+        <button onClick={() => navigate("/")}>
+          <img src="/home.png" height="24" alt="" />
+          {t("home")}
+        </button>
+
         {/* LOGIN/LOGOUT/USER */}
         {!user ? (
           <button onClick={() => navigate("/login")}>

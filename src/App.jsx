@@ -1,7 +1,13 @@
 import { movieFetch } from "./services/tmdb";
-import { useTranslation } from "react-i18next";
+import { Trans, useTranslation } from "react-i18next";
+import { Link } from "react-router-dom";
 import { useState, useEffect, useRef, useCallback } from "react";
-import { getLists, createList, changeList, currentUser } from "./services/lists";
+import {
+  getLists,
+  createList,
+  changeList,
+  currentUser,
+} from "./services/lists";
 import "./App.css";
 import { readGuest } from "./services/guest";
 
@@ -49,6 +55,7 @@ export default function App() {
   const [error, setError] = useState("");
   const [guestMode, setGuestMode] = useState(null);
   const [pendingImport, setPendingImport] = useState(false);
+
   // STATES
   const [movieLists, setMovieLists] = useState([]);
   const [movieCache, setMovieCache] = useState({});
@@ -80,11 +87,15 @@ export default function App() {
   }, []);
 
   useEffect(() => {
-    getLists().then(setMovieLists).catch(err => setError(err.message));
-    currentUser().then(user => {
-      setGuestMode(!user);
-      setPendingImport(!!user && readGuest().lists.length > 0);
-    }).catch(err => setError(err.message));
+    getLists()
+      .then(setMovieLists)
+      .catch((err) => setError(err.message));
+    currentUser()
+      .then((user) => {
+        setGuestMode(!user);
+        setPendingImport(!!user && readGuest().lists.length > 0);
+      })
+      .catch((err) => setError(err.message));
   }, []);
 
   // HANDLE INPUT
@@ -110,15 +121,25 @@ export default function App() {
   };
 
   const runChange = async (id, transform) => {
-    try { setError(""); await changeList(id, transform); await fetchLists(); }
-    catch (err) { setError(err.message); }
+    try {
+      setError("");
+      await changeList(id, transform);
+      await fetchLists();
+    } catch (err) {
+      setError(err.message);
+    }
   };
-  const handleDeleteList = id => runChange(id, () => null);
+  const handleDeleteList = (id) => runChange(id, () => null);
   const handleAddMovie = async (id, movie) => {
     searchVersions.current[id] = (searchVersions.current[id] || 0) + 1;
-    await runChange(id, list => ({ ...list, movies: list.movies.some(m => m.movieId === movie.id) ? list.movies : [...list.movies, { movieId: movie.id, rating: 0 }] }));
-    setAddResults(prev => ({ ...prev, [id]: [] }));
-    setAddQueries(prev => ({ ...prev, [id]: "" }));
+    await runChange(id, (list) => ({
+      ...list,
+      movies: list.movies.some((m) => m.movieId === movie.id)
+        ? list.movies
+        : [...list.movies, { movieId: movie.id, rating: 0 }],
+    }));
+    setAddResults((prev) => ({ ...prev, [id]: [] }));
+    setAddQueries((prev) => ({ ...prev, [id]: "" }));
   };
 
   useEffect(() => {
@@ -137,7 +158,11 @@ export default function App() {
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
-  const handleRemoveMovie = (id, movieId) => runChange(id, list => ({ ...list, movies: list.movies.filter(m => m.movieId !== movieId) }));
+  const handleRemoveMovie = (id, movieId) =>
+    runChange(id, (list) => ({
+      ...list,
+      movies: list.movies.filter((m) => m.movieId !== movieId),
+    }));
   // SEARCH MOVIES
   const searchMovies = async (listId, query) => {
     const version = (searchVersions.current[listId] || 0) + 1;
@@ -169,13 +194,22 @@ export default function App() {
       [listId]: value,
     }));
 
-    searchMovies(listId, value).catch(err => setError(err.message));
+    searchMovies(listId, value).catch((err) => setError(err.message));
   };
 
-  const handleUpdateRating = (id, movieId, rating) => runChange(id, list => ({ ...list, movies: list.movies.map(m => m.movieId === movieId ? { ...m, rating } : m) }));
+  const handleUpdateRating = (id, movieId, rating) =>
+    runChange(id, (list) => ({
+      ...list,
+      movies: list.movies.map((m) =>
+        m.movieId === movieId ? { ...m, rating } : m,
+      ),
+    }));
   // FETCH TMDB MOVIES
   useEffect(() => {
-    if (cacheLanguage.current !== tmdbLang) { cachedMovies.current = {}; cacheLanguage.current = tmdbLang; }
+    if (cacheLanguage.current !== tmdbLang) {
+      cachedMovies.current = {};
+      cacheLanguage.current = tmdbLang;
+    }
     let active = true;
     const allIds = [
       ...new Set(
@@ -187,12 +221,13 @@ export default function App() {
       if (cachedMovies.current[id]) return;
       cachedMovies.current[id] = true;
 
-      movieFetch(
-        `/api/tmdb?path=movie/${id}&language=${tmdbLang}`,
-      )
+      movieFetch(`/api/tmdb?path=movie/${id}&language=${tmdbLang}`)
         .then((res) => res.json())
         .then((data) => {
-          if (!active) { delete cachedMovies.current[id]; return; }
+          if (!active) {
+            delete cachedMovies.current[id];
+            return;
+          }
           setMovieCache((prev) => ({
             ...prev,
             [id]: data.title || "Unknown title",
@@ -205,15 +240,34 @@ export default function App() {
           }));
         });
     });
-    return () => { active = false; cachedMovies.current = {}; };
+    return () => {
+      active = false;
+      cachedMovies.current = {};
+    };
   }, [movieLists, tmdbLang]);
 
   // UI
   return (
     <main>
       {error && <p role="alert">{error}</p>}
-      {guestMode && <p>You are a guest. Lists are saved in this browser. <a href="/login">Sign in</a> to keep them in your account.</p>}
-      {pendingImport && <p>Some guest lists still need importing. <a href="/login">Retry import</a>.</p>}
+      {guestMode && (
+        <p>
+          <Trans
+            i18nKey="login_to_save"
+            components={{
+              loginLink: (
+                <Link to="/login" style={{ textDecoration: "underline" }} />
+              ),
+            }}
+          />
+        </p>
+      )}
+      {pendingImport && (
+        <p>
+          Some guest lists still need importing.{" "}
+          <a href="/login">Retry import</a>.
+        </p>
+      )}
       <div>
         <h2>{t("your_lists")}</h2>
         <button onClick={() => setShowCreateListPopup(true)}>

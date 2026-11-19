@@ -10,6 +10,7 @@ i18n.use(initReactI18next).init({
   resources: {
     en: {
       translation: {
+        home: "Home",
         blue: "🔵 Blue",
         color: "Color",
         community: "Community",
@@ -22,10 +23,10 @@ i18n.use(initReactI18next).init({
         logout: "Logout",
         mode: "Mode",
         no_description: "No description available",
-        original_title: "Original Title",
+        original_title: "Original title",
         pink: "🩷 Pink",
         red: "🔴 Red",
-        release_date: "Release Date",
+        release_date: "Release date",
         search: "🔍 Search movies",
         theme: "Theme",
         user: "User",
@@ -43,10 +44,12 @@ i18n.use(initReactI18next).init({
         remove_movie_confirm: "Remove movie?",
         remove: "Remove",
         no_lists_yet: "No lists yet",
+        login_to_save: "<loginLink>Log in</loginLink> to view your lists across devices",
       },
     },
     es: {
       translation: {
+        home: "Inicio",
         blue: "🔵 Azul",
         color: "Color",
         community: "Comunidad",
@@ -55,8 +58,8 @@ i18n.use(initReactI18next).init({
         green: "🟢 Verde",
         language: "Idioma",
         light: "☀️ Claro",
-        login: "Entrar",
-        logout: "Salir",
+        login: "Login",
+        logout: "Logout",
         mode: "Modo",
         no_description: "No hay descripción disponible",
         original_title: "Título original",
@@ -80,10 +83,13 @@ i18n.use(initReactI18next).init({
         remove_movie_confirm: "¿Eliminar película?",
         remove: "Eliminar",
         no_lists_yet: "Aún no hay listas",
+        login_to_save:
+          "<loginLink>Inicia sesión</loginLink> para ver tus listas en todos tus dispositivos",
       },
     },
     pt: {
       translation: {
+        home: "Início",
         blue: "🔵 Azul",
         color: "Cor",
         community: "Comunidade",
@@ -92,8 +98,8 @@ i18n.use(initReactI18next).init({
         green: "🟢 Verde",
         language: "Idioma",
         light: "☀️ Claro",
-        login: "Entrar",
-        logout: "Sair",
+        login: "Login",
+        logout: "Logout",
         mode: "Modo",
         no_description: "Sem descrição disponível",
         original_title: "Título original",
@@ -117,6 +123,8 @@ i18n.use(initReactI18next).init({
         remove_movie_confirm: "Remover filme?",
         remove: "Remover",
         no_lists_yet: "Ainda não há listas",
+        login_to_save:
+          "<loginLink>Faça login</loginLink> para ver suas listas em todos os seus dispositivos",
       },
     },
   },
