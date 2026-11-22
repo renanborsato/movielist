@@ -12,7 +12,7 @@ export async function tmdbRequest(url, credential, fetcher = fetch) {
   else target.searchParams.set('api_key', credential);
   try {
     const response = await fetcher(target, { headers, signal: AbortSignal.timeout(10000) });
-    if (!response.ok) return { status: response.status === 404 ? 404 : 502, body: { error: 'Movie service request failed.' } };
+    if (!response.ok) return { status: response.status === 404 ? 404 : response.status === 429 ? 429 : 502, body: { error: 'Movie service request failed.' } };
     return { status: 200, body: await response.json() };
   } catch { return { status: 502, body: { error: 'Movie service is temporarily unavailable.' } }; }
 }

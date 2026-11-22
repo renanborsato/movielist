@@ -21,13 +21,21 @@ Requires Node.js 22 and npm.
 3. Set the public `VITE_APPWRITE_*` values for your project.
 4. Run `npm run dev`. The development server includes the TMDB proxy.
 
-Use `npm run build`, `npm run lint` and `npm test` for verification. `npm run preview` serves only the static build, so use the Vercel preview deployment to test production API routes.
+Use `npm run build`, `npm run lint`, `npm test`, and `npm run test:ui` for verification. Service tests cover movie errors and preservation of guest data; interaction tests cover accessible selection, save retries, stale searches, and signed-in import recovery. `npm run preview` serves only the static build, so use the Vercel preview deployment to test production API routes.
 
 ## Deployment
 
 Import this repository into Vercel as a Vite project, using the repository root and `dist` output. Add all `.env.example` variables to the appropriate Vercel environments. Never prefix TMDB or Appwrite server API keys with `VITE_`.
 
 In Appwrite, enable email/password authentication and register `localhost` and the actual Vercel/custom domains as web platforms. See [Appwrite setup](appwrite/README.md). Vercel handles `/api/tmdb`; SPA rewrites support direct links to movie and login pages.
+
+## Peer feedback refinements
+
+Peer testing reported unclear movie-addition steps, movie-loading failures, and account-import errors. The refinement adds a shared, labelled search interface with instructions, loading and empty states, keyboard-operable result buttons, and retry controls. A failed save keeps the query and selection. Search requests are debounced and cancelled to prevent outdated results from reappearing.
+
+Movie failures now distinguish network, unavailable-service, missing-movie, and rate-limit cases without showing upstream details. Detail pages and saved-title loading offer a retry. Import recovery has a dedicated signed-in view, maps permission/session/storage failures to helpful messages, and lets the user continue without importing. Failed uploads retain local lists; a list edited during an upload is also kept for retry. New messages are provided in English, Spanish, and Portuguese.
+
+Production movie search was observed returning HTTP 503 with `Movie service is not configured`. These code changes improve recovery but cannot replace deployment configuration. Set `TMDB_API_KEY` privately in Vercel and redeploy; never put it in a `VITE_` variable or the portfolio. Then verify real search, movie addition, account import, and account privacy in the deployed app. Tests use controlled service responses; they do not establish that production credentials, permissions, or account imports work.
 
 ## Guest data
 

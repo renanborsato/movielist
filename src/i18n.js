@@ -1,5 +1,6 @@
 import i18n from "i18next";
 import { initReactI18next } from "react-i18next";
+import { refinementMessages } from './refinementMessages';
 
 const savedLang = localStorage.getItem("language") || "en";
 
@@ -10,6 +11,7 @@ i18n.use(initReactI18next).init({
   resources: {
     en: {
       translation: {
+        ...refinementMessages.en,
         home: "Home",
         blue: "🔵 Blue",
         color: "Color",
@@ -62,6 +64,7 @@ i18n.use(initReactI18next).init({
     },
     es: {
       translation: {
+        ...refinementMessages.es,
         home: "Inicio",
         blue: "🔵 Azul",
         color: "Color",
@@ -115,6 +118,7 @@ i18n.use(initReactI18next).init({
     },
     pt: {
       translation: {
+        ...refinementMessages.pt,
         home: "Início",
         blue: "🔵 Azul",
         color: "Cor",

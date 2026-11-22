@@ -7,6 +7,7 @@ import "./Movie.css";
 export default function Movie() {
   const { id } = useParams();
   const [error, setError] = useState("");
+  const [retry, setRetry] = useState(0);
   const [movie, setMovie] = useState(null);
   const { t, i18n } = useTranslation();
 
@@ -19,22 +20,25 @@ export default function Movie() {
   const tmdbLang = languageMap[i18n.language] || "en-US";
 
   useEffect(() => {
+    const controller = new AbortController();
     async function fetchMovie() {
       try {
         const res = await movieFetch(
           `/api/tmdb?path=movie/${id}&language=${tmdbLang}`,
+          { signal: controller.signal },
         );
         const data = await res.json();
-        setMovie(data);
+        if (!controller.signal.aborted) setMovie(data);
       } catch (err) {
-        setError(err.message);
+        if (!controller.signal.aborted) setError(err.message);
       }
     }
 
     fetchMovie();
-  }, [id, tmdbLang]);
+    return () => controller.abort();
+  }, [id, tmdbLang, retry]);
 
-  if (error) return <main><p role="alert">{error}</p></main>;
+  if (error) return <main><p role="alert">{t(error)}</p><button onClick={() => { setError(''); setMovie(null); setRetry(value => value + 1); }}>{t('retry')}</button></main>;
   if (!movie) return <p>Loading...</p>;
 
   return (

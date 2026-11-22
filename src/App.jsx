@@ -1,3 +1,4 @@
+import MovieSearch from "./MovieSearch";
 import { movieFetch } from "./services/tmdb";
 import { Trans, useTranslation } from "react-i18next";
 import { Link } from "react-router-dom";
@@ -70,11 +71,7 @@ export default function App() {
   const [confirmListDelete, setConfirmListDelete] = useState(null);
   const [confirmMovieRemove, setConfirmMovieRemove] = useState(null);
 
-  const [addQueries, setAddQueries] = useState({});
-  const [addResults, setAddResults] = useState({});
-
-  const addMovieRefs = useRef({});
-  const searchVersions = useRef({});
+  const [movieRetry, setMovieRetry] = useState(0);
 
   // FETCH LISTS
   const fetchLists = useCallback(async () => {
@@ -131,72 +128,20 @@ export default function App() {
   };
   const handleDeleteList = (id) => runChange(id, () => null);
   const handleAddMovie = async (id, movie) => {
-    searchVersions.current[id] = (searchVersions.current[id] || 0) + 1;
-    await runChange(id, (list) => ({
+    await changeList(id, (list) => ({
       ...list,
       movies: list.movies.some((m) => m.movieId === movie.id)
-        ? list.movies
-        : [...list.movies, { movieId: movie.id, rating: 0 }],
+        ? list.movies : [...list.movies, { movieId: movie.id, rating: 0 }],
     }));
-    setAddResults((prev) => ({ ...prev, [id]: [] }));
-    setAddQueries((prev) => ({ ...prev, [id]: "" }));
+    setMovieCache((prev) => ({ ...prev, [movie.id]: movie.title }));
+    await fetchLists();
   };
-
-  useEffect(() => {
-    const handleClickOutside = (e) => {
-      Object.entries(addMovieRefs.current).forEach(([listId, el]) => {
-        if (el && !el.contains(e.target)) {
-          setAddResults((prev) => ({
-            ...prev,
-            [listId]: [],
-          }));
-        }
-      });
-    };
-
-    document.addEventListener("mousedown", handleClickOutside);
-    return () => document.removeEventListener("mousedown", handleClickOutside);
-  }, []);
 
   const handleRemoveMovie = (id, movieId) =>
     runChange(id, (list) => ({
       ...list,
       movies: list.movies.filter((m) => m.movieId !== movieId),
     }));
-  // SEARCH MOVIES
-  const searchMovies = async (listId, query) => {
-    const version = (searchVersions.current[listId] || 0) + 1;
-    searchVersions.current[listId] = version;
-    if (query.length < 2) {
-      setAddResults((prev) => ({ ...prev, [listId]: [] }));
-      return;
-    }
-
-    const res = await movieFetch(
-      `/api/tmdb?path=search/movie&query=${encodeURIComponent(
-        query,
-      )}&language=${tmdbLang}`,
-    );
-
-    const data = await res.json();
-    if (searchVersions.current[listId] !== version) return;
-
-    setAddResults((prev) => ({
-      ...prev,
-      [listId]: data.results || [],
-    }));
-  };
-
-  // HANDLE ADD QUERY
-  const handleAddQueryChange = (listId, value) => {
-    setAddQueries((prev) => ({
-      ...prev,
-      [listId]: value,
-    }));
-
-    searchMovies(listId, value).catch((err) => setError(err.message));
-  };
-
   const handleUpdateRating = (id, movieId, rating) =>
     runChange(id, (list) => ({
       ...list,
@@ -233,23 +178,22 @@ export default function App() {
             [id]: data.title || "Unknown title",
           }));
         })
-        .catch(() => {
-          setMovieCache((prev) => ({
-            ...prev,
-            [id]: "Unknown title",
-          }));
+        .catch((err) => {
+          if (!active) return;
+          delete cachedMovies.current[id];
+          setError(err.message);
         });
     });
     return () => {
       active = false;
       cachedMovies.current = {};
     };
-  }, [movieLists, tmdbLang]);
+  }, [movieLists, tmdbLang, movieRetry]);
 
   // UI
   return (
     <main>
-      {error && <p role="alert">{error}</p>}
+      {error && <p role="alert">{t(error)} <button type="button" onClick={() => { setError(""); fetchLists(); setMovieRetry(value => value + 1); }}>{t('retry')}</button></p>}
       {guestMode && (
         <p>
           <Trans
@@ -380,7 +324,7 @@ export default function App() {
                         });
                       }}
                     >
-                      {movieCache[movie.movieId] || "..."}
+                      {movieCache[movie.movieId] || `${t("movie_label")} ${movie.movieId}`}
                     </span>
                     <StarRating
                       listId={list.id}
@@ -391,32 +335,8 @@ export default function App() {
                   </li>
                 ))}
 
-                <div
-                  className="add-movie-container"
-                  ref={(el) => (addMovieRefs.current[list.id] = el)}
-                >
-                  <input
-                    type="text"
-                    placeholder={t("add_movie")}
-                    value={addQueries[list.id] || ""}
-                    onChange={(e) =>
-                      handleAddQueryChange(list.id, e.target.value)
-                    }
-                  />
-
-                  {addResults[list.id]?.length > 0 && (
-                    <ul className="dropdown">
-                      {addResults[list.id].slice(0, 5).map((movie) => (
-                        <li
-                          key={movie.id}
-                          onClick={() => handleAddMovie(list.id, movie)}
-                        >
-                          {movie.title}
-                        </li>
-                      ))}
-                    </ul>
-                  )}
-                </div>
+                <MovieSearch id={`add-movie-${list.id}`} label={`${t('add_movie')} — ${list.title}`}
+                  adding onSelect={movie => handleAddMovie(list.id, movie)} />
               </article>
             </div>
           ))
